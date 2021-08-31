@@ -7,6 +7,8 @@ public class GameController : MonoBehaviour
 {
 
     public event EventHandler OnGameOver;
+    public event EventHandler OnRotButtonPressed;
+    public event EventHandler OnPauseButtonPressed;
     // Delay on move shape down
     [SerializeField] private float dropInterval=0.5f;
 
@@ -33,6 +35,9 @@ public class GameController : MonoBehaviour
     private float timeToNextKeyRotate;
 
     private bool gameOver = false;
+    private bool paused = false;
+
+    private bool clockwise = true;
 
 
 
@@ -111,12 +116,12 @@ public class GameController : MonoBehaviour
 
         else if (Input.GetButtonDown("Rotate") && Time.time > timeToNextKeyRotate)
         {
-            activeShape.RotateRight();
+            activeShape.RotateClockwise(clockwise);
 
             timeToNextKeyRotate = Time.time + keyRepeatRateRotate;
             if (!board.IsValidPosition(activeShape))
             {
-                activeShape.RotateLeft();
+                activeShape.RotateClockwise(!clockwise);
                 AudioManager.Instance.PlayErrorAudioClip();
             } else
             {
@@ -142,6 +147,14 @@ public class GameController : MonoBehaviour
             {
                 AudioManager.Instance.PlayMoveAudioClip();
             }
+        }
+        else if (Input.GetButtonDown("ToggleRot"))
+        {
+            OnRotButtonPressed?.Invoke(this,EventArgs.Empty);
+        }
+        else if (Input.GetButtonDown("Pause"))
+        {
+            OnPauseButtonPressed?.Invoke(this,EventArgs.Empty);
         }
     }
 
@@ -178,5 +191,19 @@ public class GameController : MonoBehaviour
             }
             AudioManager.Instance.PlayClearRowAudioClip();
         }
+    }
+
+    public void ToggleRotDirection(out bool isEnable)
+    {
+        clockwise = !clockwise;
+        isEnable = clockwise;
+    }
+
+    public void TogglePause()
+    {
+        if (gameOver)    return;
+
+        paused = !paused;
+        Time.timeScale = paused ? 0f : 1f;
     }
 }

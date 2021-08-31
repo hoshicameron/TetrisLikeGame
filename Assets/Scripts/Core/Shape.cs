@@ -51,5 +51,11 @@ public class Shape : MonoBehaviour
         transform.Rotate(0f,0f,90f);
     }
 
-
+    public void RotateClockwise(bool clockwise)
+    {
+        if(clockwise)
+            RotateRight();
+        else
+            RotateLeft();
+    }
 }

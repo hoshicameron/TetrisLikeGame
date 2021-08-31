@@ -16,6 +16,8 @@
             <e p="UIManager.cs" t="Include" />
           </e>
           <e p="Utilities" t="Include">
+            <e p="IconToggle.cs" t="Include" />
+            <e p="ScreenFader.cs" t="Include" />
             <e p="VectorF.cs" t="Include" />
           </e>
         </e>

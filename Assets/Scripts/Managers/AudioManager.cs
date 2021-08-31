@@ -87,15 +87,18 @@ public class AudioManager : MonoBehaviour
         }
     }
 
-    public void ToggleMusic()
+    public void ToggleMusic(out bool isEnable)
     {
         musicEnabled = !musicEnabled;
+        isEnable = musicEnabled;
         UpdateMusic();
     }
 
-    public void ToggleSFX()
+    public void ToggleSFX(out bool isEnable)
     {
         sfxEnabled = !sfxEnabled;
+        vocalEnabled = !vocalEnabled;
+        isEnable = sfxEnabled;
         UpdateSFX();
     }
 
@@ -103,10 +106,12 @@ public class AudioManager : MonoBehaviour
     {
         if (sfxEnabled ||vocalEnabled)
         {
+            print("enable");
             sfxMixerGroup.audioMixer.SetFloat("sfxVolume", 0f);
             vocalMixerGroup.audioMixer.SetFloat("vocalVolume", 0f);
         } else
         {
+            print("Disable");
             sfxMixerGroup.audioMixer.SetFloat("sfxVolume", -80f);
             vocalMixerGroup.audioMixer.SetFloat("vocalVolume", -80f);
         }
@@ -151,6 +156,18 @@ public class AudioManager : MonoBehaviour
     public void PlayVocalGameOverClip()
     {
         vocalAudioSource.PlayOneShot(vocalGameOverAudioClip);
+    }
+
+    public void ToggleMusicVolume(bool state)
+    {
+        if (state)
+        {
+            musicMixerGroup.audioMixer.SetFloat("musicVolume", -20f);
+        } else
+        {
+            musicMixerGroup.audioMixer.SetFloat("musicVolume", 0f);
+
+        }
     }
 
 
