@@ -106,12 +106,10 @@ public class AudioManager : MonoBehaviour
     {
         if (sfxEnabled ||vocalEnabled)
         {
-            print("enable");
             sfxMixerGroup.audioMixer.SetFloat("sfxVolume", 0f);
             vocalMixerGroup.audioMixer.SetFloat("vocalVolume", 0f);
         } else
         {
-            print("Disable");
             sfxMixerGroup.audioMixer.SetFloat("sfxVolume", -80f);
             vocalMixerGroup.audioMixer.SetFloat("vocalVolume", -80f);
         }
@@ -168,6 +166,11 @@ public class AudioManager : MonoBehaviour
             musicMixerGroup.audioMixer.SetFloat("musicVolume", 0f);
 
         }
+    }
+
+    public void PlayLevelUpVocalAudioClip()
+    {
+        vocalAudioSource.PlayOneShot(vocalLevelUpAudioClip);
     }
 
 

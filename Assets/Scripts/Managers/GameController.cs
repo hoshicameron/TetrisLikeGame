@@ -16,7 +16,8 @@ public class GameController : MonoBehaviour
     private Board board;
     // Reference to spawner
     private Spawner spawner;
-
+    // Reference to scoreManager
+    private ScoreManager scoreManager;
     // Currently active shape
     private Shape activeShape;
     // TimeToDrop to move shape with interval
@@ -39,6 +40,8 @@ public class GameController : MonoBehaviour
 
     private bool clockwise = true;
 
+    private float dropIntervalModed;
+
 
 
     private void Start()
@@ -46,6 +49,7 @@ public class GameController : MonoBehaviour
         //Find spawner and board
         board = FindObjectOfType<Board>();
         spawner = FindObjectOfType<Spawner>();
+        scoreManager = FindObjectOfType<ScoreManager>();
 
         timeToDrop = Time.time + dropInterval;
         timeToNextKeyDown = Time.time + keyRepeatRateDown;
@@ -57,6 +61,11 @@ public class GameController : MonoBehaviour
         {
             Debug.Log("Warning! There is no game board defined!");
         }
+        if(scoreManager==null)
+        {
+            Debug.Log("Warning! There is no score manager defined!");
+        }
+
         if (spawner == null)
         {
             Debug.Log("Warning! There is no game spawner defined!");
@@ -70,6 +79,8 @@ public class GameController : MonoBehaviour
         }
         // Play main music
         AudioManager.Instance.PlayMusic();
+
+        dropIntervalModed = dropInterval;
 
     }
 
@@ -130,7 +141,7 @@ public class GameController : MonoBehaviour
         } else if (Input.GetButton("MoveDown") && Time.time > timeToNextKeyDown || Time.time>timeToDrop)
         {
             timeToNextKeyDown = Time.time + keyRepeatRateDown;
-            timeToDrop = Time.time + dropInterval;
+            timeToDrop = Time.time + dropIntervalModed;
 
             activeShape.MoveDown();
 
@@ -185,10 +196,24 @@ public class GameController : MonoBehaviour
 
         if (board.CompletedRows > 0)
         {
-            if (board.CompletedRows > 1)
+            scoreManager.ScoreLines(board.CompletedRows);
+
+            if (scoreManager.DidLevelUp)
             {
-                AudioManager.Instance.PlayVocalClip();
+                //Clear one or more rows and levelUp
+                AudioManager.Instance.PlayLevelUpVocalAudioClip();
+                //Update game speed
+                dropIntervalModed =
+                    Mathf.Clamp(dropInterval - (((float) scoreManager.GetLevel - 1) * 0.05f), 0.05f, 1f);
+            } else
+            {
+                if (board.CompletedRows > 1)
+                {
+                    //Clear more than one row
+                    AudioManager.Instance.PlayVocalClip();
+                }
             }
+            //Clear one row
             AudioManager.Instance.PlayClearRowAudioClip();
         }
     }

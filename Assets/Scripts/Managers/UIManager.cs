@@ -1,14 +1,17 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
 {
+    [Header("UIPanels")]
     [SerializeField] private GameObject gameOverPanel;
     [SerializeField] private GameObject pausePanel;
+    [Header("UI Buttons")]
     [SerializeField] private Button musicButton;
     [SerializeField] private Button sfxButton;
     [SerializeField] private Button gameOverPanelRestartButton;
@@ -16,20 +19,39 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Button rotateButton;
     [SerializeField] private Button pauseButton;
     [SerializeField] private Button resumeButton;
-
+    [Header("UI Icons")]
     [SerializeField] private IconToggle musicIconToggle;
     [SerializeField] private IconToggle sfxIconToggle;
     [SerializeField] private IconToggle rotateIconToggle;
+    [Header("UI Texts")]
+    [SerializeField] private TextMeshProUGUI scoreText;
+    [SerializeField] private TextMeshProUGUI linesText;
+    [SerializeField] private TextMeshProUGUI levelText;
+
+
     private GameController gameController;
+    private ScoreManager scoreManager;
 
     private void Start()
     {
         gameOverPanel.SetActive(false);
         pausePanel.SetActive(false);
         gameController = FindObjectOfType<GameController>();
-        gameController.OnGameOver+=GameController_OnGameOver;
-        gameController.OnRotButtonPressed += (sender, args) => ChangeRotationDirection();
-        gameController.OnPauseButtonPressed += (sender, args) => TogglePauseGame();
+        scoreManager = FindObjectOfType<ScoreManager>();
+
+        if (gameController != null)
+        {
+            gameController.OnGameOver+=GameController_OnGameOver;
+            gameController.OnRotButtonPressed += (sender, args) => ChangeRotationDirection();
+            gameController.OnPauseButtonPressed += (sender, args) => TogglePauseGame();
+        }
+
+        if (scoreManager != null)
+        {
+            scoreManager.OnScoreUpdated+=ScoreManager_OnScoreUpdated;
+        }
+
+
 
         musicButton.onClick.AddListener(() =>
         {
@@ -60,6 +82,14 @@ public class UIManager : MonoBehaviour
         rotateButton.onClick.AddListener(ChangeRotationDirection);
     }
 
+    private void ScoreManager_OnScoreUpdated(object sender, ScoreManager.ScoreEventArgs e)
+    {
+        scoreText.SetText(PadZer0(e.m_score,5));
+        levelText.SetText(e.m_Level.ToString());
+        linesText.SetText(e.m_lines.ToString());
+
+    }
+
     private void TogglePauseGame()
     {
         gameController.TogglePause();
@@ -84,5 +114,17 @@ public class UIManager : MonoBehaviour
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
+
+    private string PadZer0(int n, int padDigits)
+    {
+        string nString = n.ToString();
+
+        while (nString.Length<padDigits)
+        {
+            nString = $"0{nString}";
+        }
+
+        return nString;
+    }
 
 }

@@ -13,6 +13,7 @@ public class IconToggle : MonoBehaviour
 
     private Image image;
 
+
     private void Start()
     {
         image = GetComponent<Image>();
