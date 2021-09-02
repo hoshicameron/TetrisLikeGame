@@ -19,6 +19,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Button rotateButton;
     [SerializeField] private Button pauseButton;
     [SerializeField] private Button resumeButton;
+    [SerializeField] private Button holdButton;
     [Header("UI Icons")]
     [SerializeField] private IconToggle musicIconToggle;
     [SerializeField] private IconToggle sfxIconToggle;
@@ -80,6 +81,11 @@ public class UIManager : MonoBehaviour
         resumeButton.onClick.AddListener(TogglePauseGame);
 
         rotateButton.onClick.AddListener(ChangeRotationDirection);
+
+        holdButton.onClick.AddListener(() =>
+        {
+            gameController.Hold();
+        });
     }
 
     private void ScoreManager_OnScoreUpdated(object sender, ScoreManager.ScoreEventArgs e)

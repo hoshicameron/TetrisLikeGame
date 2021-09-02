@@ -22,8 +22,8 @@ public class AudioManager : MonoBehaviour
     [SerializeField] private AudioClip gameOverAudioClip;
     [SerializeField] private AudioClip dropAudioClip;
     [SerializeField] private AudioClip errorAudioClip;
-    [SerializeField] private AudioClip transformerAudioClip;
-    [SerializeField] private AudioClip levelUpSfxAudioClip;
+    [SerializeField] private AudioClip holdShapeAudioClip;
+
 
     [Header("MixerGroups")]
     [SerializeField] private AudioMixerGroup musicMixerGroup;
@@ -171,6 +171,11 @@ public class AudioManager : MonoBehaviour
     public void PlayLevelUpVocalAudioClip()
     {
         vocalAudioSource.PlayOneShot(vocalLevelUpAudioClip);
+    }
+
+    public void PlayHoldShapeAudioClip()
+    {
+        sfxAudioSource.PlayOneShot(holdShapeAudioClip);
     }
 
 

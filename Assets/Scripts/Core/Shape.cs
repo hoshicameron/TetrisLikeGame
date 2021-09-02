@@ -5,7 +5,10 @@ using UnityEngine;
 
 public class Shape : MonoBehaviour
 {
+    [SerializeField] private Vector3 queueOffset;
     [SerializeField] private bool canRotate=true;
+
+    public Vector3 QueueOffset => queueOffset;
 
     private void Start()
     {

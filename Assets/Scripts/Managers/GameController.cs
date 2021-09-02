@@ -23,6 +23,12 @@ public class GameController : MonoBehaviour
     // TimeToDrop to move shape with interval
     private float timeToDrop;
 
+    // Ghost for Visualization
+    private Ghost ghost;
+
+    // holder reference
+    private Holder holder;
+
 
     // Delay on move shape with player input
     [Range(0.02f,1f)]
@@ -50,6 +56,8 @@ public class GameController : MonoBehaviour
         board = FindObjectOfType<Board>();
         spawner = FindObjectOfType<Spawner>();
         scoreManager = FindObjectOfType<ScoreManager>();
+        ghost = FindObjectOfType<Ghost>();
+        holder = FindObjectOfType<Holder>();
 
         timeToDrop = Time.time + dropInterval;
         timeToNextKeyDown = Time.time + keyRepeatRateDown;
@@ -92,6 +100,14 @@ public class GameController : MonoBehaviour
             return;
         }
         PlayerInput();
+    }
+
+    private void LateUpdate()
+    {
+        if (ghost != null)
+        {
+            ghost.DrawGhost(activeShape,board);
+        }
     }
 
     private void PlayerInput()
@@ -167,6 +183,10 @@ public class GameController : MonoBehaviour
         {
             OnPauseButtonPressed?.Invoke(this,EventArgs.Empty);
         }
+        else if (Input.GetButtonDown("Hold"))
+        {
+            Hold();
+        }
     }
 
     private void GameOver()
@@ -188,6 +208,17 @@ public class GameController : MonoBehaviour
         activeShape.MoveUp();
         // Add shape to the grid
         board.StoreShapeInGrid(activeShape);
+        // Destroy ghost shape
+        if (ghost != null)
+        {
+            ghost.Reset();
+        }
+
+        if (holder)
+        {
+            holder.CanRelease = true;
+        }
+
         // Spawn new shape
         activeShape = spawner.SpawnShape();
 
@@ -230,5 +261,39 @@ public class GameController : MonoBehaviour
 
         paused = !paused;
         Time.timeScale = paused ? 0f : 1f;
+    }
+
+    public void Hold()
+    {
+        if(holder==null) return;
+        if (holder.IsHolderEmpty())
+        {
+            holder.Catch(activeShape);
+            activeShape = spawner.SpawnShape();
+            AudioManager.Instance.PlayHoldShapeAudioClip();
+        } else
+        {
+            if (holder.CanRelease)
+            {
+                Shape temp = activeShape;
+                activeShape = holder.Release();
+                activeShape.transform.position = spawner.transform.position;
+                holder.Catch(temp);
+                AudioManager.Instance.PlayHoldShapeAudioClip();
+
+            } else
+            {
+                Debug.LogWarning("Holder Warning! Wait for cool down");
+                AudioManager.Instance.PlayErrorAudioClip();
+            }
+
+
+        }
+
+        if (ghost)
+        {
+            ghost.Reset();
+        }
+
     }
 }
