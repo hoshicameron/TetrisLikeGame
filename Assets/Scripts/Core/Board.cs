@@ -10,10 +10,13 @@ public class Board : MonoBehaviour
     [SerializeField] private int height=30;
     // The width of board
     [SerializeField] private int width=10;
-    //The clear area at top
+    // The clear area at top
     [SerializeField] private int header=8;
 
-    // An array to store empty square refrences
+    // Reference to Row Glow Effect
+    [SerializeField] private ParticlePlayer[]  rowGlowFXArray=new ParticlePlayer[4];
+
+    // An array to store empty square references
     private Transform[,] grid;
 
     private int completedRows;
@@ -145,22 +148,32 @@ public class Board : MonoBehaviour
         }
     }
 
-    public void ClearAllRows()
+    public IEnumerator ClearAllRows()
     {
         completedRows = 0;
+
+        for (int y = 0; y < height; y++)
+        {
+            if (IsComplete(y))
+            {
+                ClearRowFX(completedRows,y);
+                completedRows++;
+
+
+
+            }
+        }
+        yield return new WaitForSeconds(0.3f);
         for (int y = 0; y < height; y++)
         {
             if (IsComplete(y))
             {
                 ClearRow(y);
-                completedRows++;
                 ShiftRowsDown(y+1);
+                yield return  new WaitForSeconds(0.2f);
                 // Decrement counter because we cleared current row, if we continue to next row
                 // we will lose one row
                 y--;
-
-
-
             }
         }
     }
@@ -176,5 +189,17 @@ public class Board : MonoBehaviour
         }
 
         return false;
+    }
+
+    private void ClearRowFX(int index,int y)
+    {
+        if (rowGlowFXArray[index] != null)
+        {
+            // Set x to effect shown in the top of the blocks
+            rowGlowFXArray[index].transform.position=new Vector3(0,y,-1);
+            rowGlowFXArray[index].Play();
+
+
+        }
     }
 }

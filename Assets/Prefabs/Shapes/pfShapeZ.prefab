@@ -71,7 +71,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 87eff192a3dbbf4428b57dcfa685543e, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 2fe7125adf1eaa445a91c0d54f7eb7b5, type: 3}
   m_Color: {r: 0.81960785, g: 0.13625728, b: 0.09019606, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -153,7 +153,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 87eff192a3dbbf4428b57dcfa685543e, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 2fe7125adf1eaa445a91c0d54f7eb7b5, type: 3}
   m_Color: {r: 0.81960785, g: 0.13625728, b: 0.09019606, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -235,7 +235,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 87eff192a3dbbf4428b57dcfa685543e, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 2fe7125adf1eaa445a91c0d54f7eb7b5, type: 3}
   m_Color: {r: 0.81960785, g: 0.13625728, b: 0.09019606, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -317,7 +317,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 87eff192a3dbbf4428b57dcfa685543e, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 2fe7125adf1eaa445a91c0d54f7eb7b5, type: 3}
   m_Color: {r: 0.81960785, g: 0.13625728, b: 0.09019606, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -377,3 +377,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   queueOffset: {x: 0, y: -0.25, z: 0}
   canRotate: 1
+  glowSquareTag: LandShape

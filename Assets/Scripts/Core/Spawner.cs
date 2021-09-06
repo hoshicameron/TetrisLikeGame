@@ -6,6 +6,8 @@ public class Spawner : MonoBehaviour
 {
     [SerializeField] private Shape[] allShapes;
     [SerializeField] private Transform[] queuedXForms=new Transform[3];
+    [SerializeField] private ParticlePlayer spawnFX;
+
 
     private Shape[] queuedShapes=new Shape[3];
     private float queueScale = 0.5f;
@@ -34,7 +36,15 @@ public class Spawner : MonoBehaviour
         Shape shape = null;
         shape = GetQueuedShape();
         shape.transform.position = transform.position;
-        shape.transform.localScale = Vector3.one;
+        //shape.transform.localScale = Vector3.one;
+
+        StartCoroutine(GrowShape(shape, transform.position, 0.25f));
+
+
+        if (spawnFX != null)
+        {
+            spawnFX.Play();
+        }
         return shape != null ? shape : null;
     }
 
@@ -79,5 +89,23 @@ public class Spawner : MonoBehaviour
         FillQueue();
 
         return firstShape;
+    }
+
+    IEnumerator GrowShape(Shape shape, Vector3 position, float growTime = 0.5f)
+    {
+
+        float size = 0f;
+        growTime = Mathf.Clamp(growTime, 0.1f, 2.0f);
+        float sizeDelta = Time.deltaTime / growTime;
+        while (size<1f)
+        {
+
+            shape.transform.localScale=new Vector3(size,size,size);
+            size += sizeDelta;
+            shape.transform.position = position;
+            yield return null;
+        }
+
+        shape.transform.localScale = Vector3.one;
     }
 }

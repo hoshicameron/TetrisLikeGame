@@ -7,14 +7,37 @@ public class Shape : MonoBehaviour
 {
     [SerializeField] private Vector3 queueOffset;
     [SerializeField] private bool canRotate=true;
+    [SerializeField] private string glowSquareTag;
+    private GameObject[] glowSquareFXArray;
 
     public Vector3 QueueOffset => queueOffset;
 
-    private void Start()
+    private void Awake()
     {
-
+        if (!string.IsNullOrEmpty(glowSquareTag))
+        {
+            glowSquareFXArray = GameObject.FindGameObjectsWithTag(glowSquareTag);
+        }
     }
 
+    public void LandShapeFX()
+    {
+        int i = 0;
+        foreach (Transform child in transform)
+        {
+            if (glowSquareFXArray[i] != null)
+            {
+                glowSquareFXArray[i].transform.position = child.position;
+                if (glowSquareFXArray[i].TryGetComponent( out ParticlePlayer particlePlayer))
+                {
+                    particlePlayer.Play();
+                }
+
+                i++;
+                //ParticlePlayer particlePlayer = glowSquareFXArray[i].GetComponent<ParticlePlayer>();
+            }
+        }
+    }
     public void Move(Vector3 moveDirection)
     {
         this.transform.position += moveDirection;

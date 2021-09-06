@@ -15,6 +15,7 @@ public class ScoreManager : MonoBehaviour
     }
 
     [SerializeField] private int LinesPerLevel=5;
+    [SerializeField] private ParticlePlayer levelUpFX;
 
     private int score = 0;
     private int lines;
@@ -76,6 +77,11 @@ public class ScoreManager : MonoBehaviour
         level = GetLevel + 1;
         lines = LinesPerLevel * GetLevel;
         didLevelUp = true;
+
+        if (levelUpFX!=null)
+        {
+            levelUpFX.Play();
+        }
     }
 
     public void UpdateUI()

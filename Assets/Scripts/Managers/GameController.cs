@@ -39,6 +39,8 @@ public class GameController : MonoBehaviour
     private float timeToNextKeyDown;
     [Range(0.02f,1f)]
     [SerializeField]private float keyRepeatRateRotate = 0.25f;
+
+    [SerializeField] private ParticlePlayer gameOverFX;
     private float timeToNextKeyRotate;
 
     private bool gameOver = false;
@@ -195,12 +197,23 @@ public class GameController : MonoBehaviour
         gameOver = true;
         AudioManager.Instance.PlayGameOverAudioClip();
         AudioManager.Instance.PlayVocalGameOverClip();
+
+        StartCoroutine(nameof(GameOverRoutine));
+    }
+
+    IEnumerator GameOverRoutine()
+    {
+        if (gameOverFX!=null)
+        {
+            gameOverFX.Play();
+        }
         OnGameOver?.Invoke(this, EventArgs.Empty);
-        //Debug.LogWarning("The shape pass the board boundaries! Game Over...");
+        yield return new WaitForSeconds(0.5f);
     }
 
     private void LandShape()
     {
+        // set the all input delay to zero, so there is no delay when new shape spawns
         timeToNextKeyDown = Time.time;
         timeToNextKeyLeftRight = Time.time ;
         timeToNextKeyRotate = Time.time ;
@@ -208,6 +221,9 @@ public class GameController : MonoBehaviour
         activeShape.MoveUp();
         // Add shape to the grid
         board.StoreShapeInGrid(activeShape);
+
+        // spawn land shape effect
+        activeShape.LandShapeFX();
         // Destroy ghost shape
         if (ghost != null)
         {
@@ -222,7 +238,8 @@ public class GameController : MonoBehaviour
         // Spawn new shape
         activeShape = spawner.SpawnShape();
 
-        board.ClearAllRows();
+        // remove completed rows from the board if we have any
+        board.StartCoroutine(nameof(Board.ClearAllRows));
         AudioManager.Instance.PlayDropAudioClip();
 
         if (board.CompletedRows > 0)
