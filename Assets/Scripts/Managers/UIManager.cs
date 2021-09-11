@@ -20,6 +20,8 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Button pauseButton;
     [SerializeField] private Button resumeButton;
     [SerializeField] private Button holdButton;
+    [SerializeField] private Button gameOverQuitButton;
+    [SerializeField] private Button pauseQuitButton;
     [Header("UI Icons")]
     [SerializeField] private IconToggle musicIconToggle;
     [SerializeField] private IconToggle sfxIconToggle;
@@ -86,6 +88,16 @@ public class UIManager : MonoBehaviour
         {
             gameController.Hold();
         });
+
+        gameOverQuitButton.onClick.AddListener(() =>
+        {
+            ExitGame();
+        });
+
+        pauseQuitButton.onClick.AddListener(() =>
+        {
+            ExitGame();
+        });
     }
 
     private void ScoreManager_OnScoreUpdated(object sender, ScoreManager.ScoreEventArgs e)
@@ -131,6 +143,11 @@ public class UIManager : MonoBehaviour
         }
 
         return nString;
+    }
+
+    private void ExitGame()
+    {
+        Application.Quit();
     }
 
 }

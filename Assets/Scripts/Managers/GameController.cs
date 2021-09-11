@@ -50,7 +50,17 @@ public class GameController : MonoBehaviour
 
     private float dropIntervalModed;
 
+    enum Direction
+    {
+        none,
+        left,
+        right,
+        up,
+        down
+    };
 
+    private Direction swipeDirection = Direction.none;
+    private Direction swipeEndDirection = Direction.none;
 
     private void Start()
     {
@@ -94,6 +104,18 @@ public class GameController : MonoBehaviour
 
     }
 
+    private void OnEnable()
+    {
+        TouchController.SwipeEvent += SwipeHandler;
+        TouchController.SwipeEndEvent += SwipeEndHandler;
+    }
+
+    private void OnDisable()
+    {
+        TouchController.SwipeEvent -= SwipeHandler;
+        TouchController.SwipeEndEvent -= SwipeEndHandler;
+    }
+
     private void Update()
     {
         //if we don't have a spawner or game board just don't run the game
@@ -116,67 +138,50 @@ public class GameController : MonoBehaviour
     {
         if (Input.GetButton("MoveRight") && Time.time > timeToNextKeyLeftRight)
         {
-            activeShape.MoveRight();
-            timeToNextKeyLeftRight = Time.time + keyRepeatRateLeftRight;
-            if (!board.IsValidPosition(activeShape))
-            {
-                activeShape.MoveLeft();
-                AudioManager.Instance.PlayErrorAudioClip();
-            }
-            else
-            {
-                AudioManager.Instance.PlayMoveAudioClip();
-            }
+            MoveRight();
         }
 
         else if (Input.GetButton("MoveLeft") && Time.time > timeToNextKeyLeftRight)
         {
-            activeShape.MoveLeft();
-            timeToNextKeyLeftRight = Time.time + keyRepeatRateLeftRight;
-            if (!board.IsValidPosition(activeShape))
-            {
-                activeShape.MoveRight();
-                AudioManager.Instance.PlayErrorAudioClip();
-            } else
-            {
-                AudioManager.Instance.PlayMoveAudioClip();
-            }
+            MoveLeft();
         }
 
         else if (Input.GetButtonDown("Rotate") && Time.time > timeToNextKeyRotate)
         {
-            activeShape.RotateClockwise(clockwise);
-
-            timeToNextKeyRotate = Time.time + keyRepeatRateRotate;
-            if (!board.IsValidPosition(activeShape))
-            {
-                activeShape.RotateClockwise(!clockwise);
-                AudioManager.Instance.PlayErrorAudioClip();
-            } else
-            {
-                AudioManager.Instance.PlayMoveAudioClip();
-            }
+            Rotate();
         } else if (Input.GetButton("MoveDown") && Time.time > timeToNextKeyDown || Time.time>timeToDrop)
         {
-            timeToNextKeyDown = Time.time + keyRepeatRateDown;
-            timeToDrop = Time.time + dropIntervalModed;
-
-            activeShape.MoveDown();
-
-            if (!board.IsValidPosition(activeShape))
-            {
-                if (board.IsOverLimit(activeShape))
-                {
-                    GameOver();
-                } else
-                {
-                    LandShape();
-                }
-            } else
-            {
-                AudioManager.Instance.PlayMoveAudioClip();
-            }
+            MoveDown();
         }
+        // Swipe to right
+        else if ((swipeDirection==Direction.right && Time.time>timeToNextKeyLeftRight)|| swipeEndDirection==Direction.right)
+        {
+            MoveRight();
+            swipeDirection = Direction.none;
+            swipeEndDirection = Direction.none;
+        }
+        // Swipe to Left
+        else if ((swipeDirection==Direction.left && Time.time>timeToNextKeyLeftRight)|| swipeEndDirection==Direction.left)
+        {
+            MoveLeft();
+            swipeDirection = Direction.none;
+            swipeEndDirection = Direction.none;
+        }
+        // Swipe to up when touch ended
+        else if (swipeEndDirection==Direction.up)
+        {
+            Rotate();
+            swipeEndDirection = Direction.none;
+
+        }
+        // Swipe to down while wipe down
+        else if (swipeDirection==Direction.down && Time.time>timeToNextKeyDown)
+        {
+            MoveDown();
+            swipeDirection = Direction.none;
+
+        }
+
         else if (Input.GetButtonDown("ToggleRot"))
         {
             OnRotButtonPressed?.Invoke(this,EventArgs.Empty);
@@ -188,6 +193,71 @@ public class GameController : MonoBehaviour
         else if (Input.GetButtonDown("Hold"))
         {
             Hold();
+        }
+    }
+
+    private void MoveDown()
+    {
+        timeToNextKeyDown = Time.time + keyRepeatRateDown;
+        timeToDrop = Time.time + dropIntervalModed;
+
+        activeShape.MoveDown();
+
+        if (!board.IsValidPosition(activeShape))
+        {
+            if (board.IsOverLimit(activeShape))
+            {
+                GameOver();
+            } else
+            {
+                LandShape();
+            }
+        } else
+        {
+            AudioManager.Instance.PlayMoveAudioClip();
+        }
+    }
+
+    private void Rotate()
+    {
+        activeShape.RotateClockwise(clockwise);
+
+        timeToNextKeyRotate = Time.time + keyRepeatRateRotate;
+        if (!board.IsValidPosition(activeShape))
+        {
+            activeShape.RotateClockwise(!clockwise);
+            AudioManager.Instance.PlayErrorAudioClip();
+        } else
+        {
+            AudioManager.Instance.PlayMoveAudioClip();
+        }
+    }
+
+    private void MoveLeft()
+    {
+        activeShape.MoveLeft();
+        timeToNextKeyLeftRight = Time.time + keyRepeatRateLeftRight;
+        if (!board.IsValidPosition(activeShape))
+        {
+            activeShape.MoveRight();
+            AudioManager.Instance.PlayErrorAudioClip();
+        } else
+        {
+            AudioManager.Instance.PlayMoveAudioClip();
+        }
+    }
+
+    private void MoveRight()
+    {
+        activeShape.MoveRight();
+        timeToNextKeyLeftRight = Time.time + keyRepeatRateLeftRight;
+        if (!board.IsValidPosition(activeShape))
+        {
+            activeShape.MoveLeft();
+            AudioManager.Instance.PlayErrorAudioClip();
+        } else
+        {
+            AudioManager.Instance.PlayMoveAudioClip();
         }
     }
 
@@ -312,5 +382,32 @@ public class GameController : MonoBehaviour
             ghost.Reset();
         }
 
+    }
+
+    void SwipeHandler(Vector2 swipeMovement)
+    {
+        swipeDirection = GetDirection(swipeMovement);
+    }
+
+    void SwipeEndHandler(Vector2 swipeMovement)
+    {
+        swipeEndDirection = GetDirection(swipeMovement);
+    }
+
+    Direction GetDirection(Vector2 swipeMovement)
+    {
+        Direction swipeDir = Direction.none;
+        // Horizontal
+        if (Mathf.Abs(swipeMovement.x) > Mathf.Abs(swipeMovement.y))
+        {
+            swipeDir = swipeMovement.x >= 0 ? Direction.right : Direction.left;
+        }
+        // Vertical
+        else
+        {
+            swipeDir = swipeMovement.y >= 0 ? Direction.up : Direction.down;
+        }
+
+        return swipeDir;
     }
 }
