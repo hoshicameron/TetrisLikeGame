@@ -31,30 +31,28 @@ public class UIManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI linesText;
     [SerializeField] private TextMeshProUGUI levelText;
 
+    private void OnEnable()
+    {
+        EventHandler.GameOverEvent+=GameController_OnGameOver;
+        EventHandler.RotateButtonPressed += ChangeRotationDirection;
+        EventHandler.PauseButtonPressed += TogglePauseGame;
+        EventHandler.UpdateScoreEvent += UpdateScoreEvent;
+    }
 
-    private GameController gameController;
-    private ScoreManager scoreManager;
+
+
+    private void OnDisable()
+    {
+        EventHandler.GameOverEvent-=GameController_OnGameOver;
+        EventHandler.RotateButtonPressed -= ChangeRotationDirection;
+        EventHandler.PauseButtonPressed -= TogglePauseGame;
+        EventHandler.UpdateScoreEvent -= UpdateScoreEvent;
+    }
 
     private void Start()
     {
         gameOverPanel.SetActive(false);
         pausePanel.SetActive(false);
-        gameController = FindObjectOfType<GameController>();
-        scoreManager = FindObjectOfType<ScoreManager>();
-
-        if (gameController != null)
-        {
-            gameController.OnGameOver+=GameController_OnGameOver;
-            gameController.OnRotButtonPressed += (sender, args) => ChangeRotationDirection();
-            gameController.OnPauseButtonPressed += (sender, args) => TogglePauseGame();
-        }
-
-        if (scoreManager != null)
-        {
-            scoreManager.OnScoreUpdated+=ScoreManager_OnScoreUpdated;
-        }
-
-
 
         musicButton.onClick.AddListener(() =>
         {
@@ -68,17 +66,11 @@ public class UIManager : MonoBehaviour
             sfxIconToggle.Toggle(enable);
         });
 
-        gameOverPanelRestartButton.onClick.AddListener(()=>
-        {
-            Restart();
-        });
+        gameOverPanelRestartButton.onClick.AddListener(Restart);
 
         pauseButton.onClick.AddListener(TogglePauseGame);
 
-        pausePanelRestartButton.onClick.AddListener(() =>
-        {
-            Restart();
-        });
+        pausePanelRestartButton.onClick.AddListener(Restart);
 
         resumeButton.onClick.AddListener(TogglePauseGame);
 
@@ -86,42 +78,35 @@ public class UIManager : MonoBehaviour
 
         holdButton.onClick.AddListener(() =>
         {
-            gameController.Hold();
+            GameController.Instance.Hold();
         });
 
-        gameOverQuitButton.onClick.AddListener(() =>
-        {
-            ExitGame();
-        });
+        gameOverQuitButton.onClick.AddListener(ExitGame);
 
-        pauseQuitButton.onClick.AddListener(() =>
-        {
-            ExitGame();
-        });
+        pauseQuitButton.onClick.AddListener(ExitGame);
     }
 
-    private void ScoreManager_OnScoreUpdated(object sender, ScoreManager.ScoreEventArgs e)
+    private void UpdateScoreEvent(int score, int lines, int level)
     {
-        scoreText.SetText(PadZer0(e.m_score,5));
-        levelText.SetText(e.m_Level.ToString());
-        linesText.SetText(e.m_lines.ToString());
-
+        scoreText.SetText(PadZer0(score,5));
+        levelText.SetText(level.ToString());
+        linesText.SetText(lines.ToString());
     }
 
     private void TogglePauseGame()
     {
-        gameController.TogglePause();
+        GameController.Instance.TogglePause();
         pausePanel.SetActive(!pausePanel.activeInHierarchy);
         AudioManager.Instance.ToggleMusicVolume(pausePanel.activeInHierarchy);
     }
 
     private void ChangeRotationDirection()
     {
-        gameController.ToggleRotDirection(out bool enable);
+        GameController.Instance.ToggleRotDirection(out bool enable);
         rotateIconToggle.Toggle(enable);
     }
 
-    private void GameController_OnGameOver(object sender, EventArgs e)
+    private void GameController_OnGameOver()
     {
         gameOverPanel.SetActive(true);
     }

@@ -4,30 +4,26 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
-public class TouchController : MonoBehaviour
+public class TouchController : SingletonMonoBehaviour<TouchController>
 {
-    public delegate void TouchEventHandler(Vector2 swipe);
+    /*public delegate void TouchEventHandler(Vector2 swipe);
 
     public static event TouchEventHandler SwipeEvent;
-    public static event TouchEventHandler SwipeEndEvent;
+    public static event TouchEventHandler SwipeEndEvent;*/
 
     private Vector2 touchMovement;
     private int minSwipeDistance = 20;
-
-    void OnSwipe()
-    {
-        SwipeEvent?.Invoke(touchMovement);
-    }
-
-    void OnSwipeEnd()
-    {
-        SwipeEndEvent?.Invoke(touchMovement);
-    }
 
     public TextMeshProUGUI diagnosticText1;
     public TextMeshProUGUI diagnosticText2;
 
     public bool useDiagnostic = false;
+
+    protected override void Awake()
+    {
+        base.Awake();
+    }
+
     private void Start()
     {
         Diagnostic(string.Empty, string.Empty);
@@ -78,13 +74,13 @@ public class TouchController : MonoBehaviour
 
                 if (touchMovement.magnitude > minSwipeDistance)
                 {
-                    OnSwipe();
+                    EventHandler.CallSwipeEvent(touchMovement);
                     Diagnostic("Swipe detected", $"{touchMovement} {SwipeDiagnostic(touchMovement)}");
                 }
             }
             else if (touch.phase == TouchPhase.Ended)
             {
-                OnSwipeEnd();
+                EventHandler.CallSwipeEndEvent(touchMovement);
             }
         }
     }

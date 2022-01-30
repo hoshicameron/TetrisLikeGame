@@ -3,17 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ScoreManager : MonoBehaviour
+public class ScoreManager : SingletonMonoBehaviour<ScoreManager>
 {
-    public EventHandler<ScoreEventArgs> OnScoreUpdated;
-
-    public class ScoreEventArgs : EventArgs
-    {
-        public int m_score;
-        public int m_lines;
-        public int m_Level;
-    }
-
     [SerializeField] private int LinesPerLevel=5;
     [SerializeField] private ParticlePlayer levelUpFX;
 
@@ -60,6 +51,11 @@ public class ScoreManager : MonoBehaviour
         UpdateUI();
     }
 
+    protected override void Awake()
+    {
+        base.Awake();
+    }
+
     private void Start()
     {
         Reset();
@@ -86,11 +82,13 @@ public class ScoreManager : MonoBehaviour
 
     public void UpdateUI()
     {
-        OnScoreUpdated?.Invoke(this,new ScoreEventArgs
+        EventHandler.CallUpdateScoreEvent(score,lines,GetLevel);
+
+        /*OnScoreUpdated?.Invoke(this,new ScoreEventArgs
         {
             m_score = score,
             m_lines = lines,
             m_Level = GetLevel
-        });
+        });*/
     }
 }

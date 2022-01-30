@@ -3,21 +3,17 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GameController : MonoBehaviour
+public class GameController : SingletonMonoBehaviour<GameController>
 {
 
-    public event EventHandler OnGameOver;
-    public event EventHandler OnRotButtonPressed;
-    public event EventHandler OnPauseButtonPressed;
+
     // Delay on move shape down
     [SerializeField] private float dropInterval=0.5f;
 
-    // Reference to boaard
+    // Reference to board
     private Board board;
     // Reference to spawner
     private Spawner spawner;
-    // Reference to scoreManager
-    private ScoreManager scoreManager;
     // Currently active shape
     private Shape activeShape;
     // TimeToDrop to move shape with interval
@@ -62,12 +58,16 @@ public class GameController : MonoBehaviour
     private Direction swipeDirection = Direction.none;
     private Direction swipeEndDirection = Direction.none;
 
+    protected override void Awake()
+    {
+        base.Awake();
+    }
+
     private void Start()
     {
         //Find spawner and board
         board = FindObjectOfType<Board>();
         spawner = FindObjectOfType<Spawner>();
-        scoreManager = FindObjectOfType<ScoreManager>();
         ghost = FindObjectOfType<Ghost>();
         holder = FindObjectOfType<Holder>();
 
@@ -81,10 +81,7 @@ public class GameController : MonoBehaviour
         {
             Debug.Log("Warning! There is no game board defined!");
         }
-        if(scoreManager==null)
-        {
-            Debug.Log("Warning! There is no score manager defined!");
-        }
+
 
         if (spawner == null)
         {
@@ -106,14 +103,14 @@ public class GameController : MonoBehaviour
 
     private void OnEnable()
     {
-        TouchController.SwipeEvent += SwipeHandler;
-        TouchController.SwipeEndEvent += SwipeEndHandler;
+        EventHandler.SwipeEvent += SwipeHandler;
+        EventHandler.SwipeEndEvent += SwipeEndHandler;
     }
 
     private void OnDisable()
     {
-        TouchController.SwipeEvent -= SwipeHandler;
-        TouchController.SwipeEndEvent -= SwipeEndHandler;
+        EventHandler.SwipeEvent -= SwipeHandler;
+        EventHandler.SwipeEndEvent -= SwipeEndHandler;
     }
 
     private void Update()
@@ -184,11 +181,11 @@ public class GameController : MonoBehaviour
 
         else if (Input.GetButtonDown("ToggleRot"))
         {
-            OnRotButtonPressed?.Invoke(this,EventArgs.Empty);
+            EventHandler.CallRotateButtonPressed();
         }
         else if (Input.GetButtonDown("Pause"))
         {
-            OnPauseButtonPressed?.Invoke(this,EventArgs.Empty);
+            EventHandler.CallPauseButtonPressed();
         }
         else if (Input.GetButtonDown("Hold"))
         {
@@ -277,7 +274,7 @@ public class GameController : MonoBehaviour
         {
             gameOverFX.Play();
         }
-        OnGameOver?.Invoke(this, EventArgs.Empty);
+        EventHandler.CallGameOvrEvent();
         yield return new WaitForSeconds(0.5f);
     }
 
@@ -314,15 +311,15 @@ public class GameController : MonoBehaviour
 
         if (board.CompletedRows > 0)
         {
-            scoreManager.ScoreLines(board.CompletedRows);
+            ScoreManager.Instance.ScoreLines(board.CompletedRows);
 
-            if (scoreManager.DidLevelUp)
+            if (ScoreManager.Instance.DidLevelUp)
             {
                 //Clear one or more rows and levelUp
                 AudioManager.Instance.PlayLevelUpVocalAudioClip();
                 //Update game speed
                 dropIntervalModed =
-                    Mathf.Clamp(dropInterval - (((float) scoreManager.GetLevel - 1) * 0.05f), 0.05f, 1f);
+                    Mathf.Clamp(dropInterval - (((float) ScoreManager.Instance.GetLevel - 1) * 0.05f), 0.05f, 1f);
             } else
             {
                 if (board.CompletedRows > 1)

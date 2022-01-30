@@ -12,6 +12,9 @@
             <e p="Shape.cs" t="Include" />
             <e p="Spawner.cs" t="Include" />
           </e>
+          <e p="Events" t="Include">
+            <e p="EventHandler.cs" t="Include" />
+          </e>
           <e p="Managers" t="Include">
             <e p="AudioManager.cs" t="Include" />
             <e p="GameController.cs" t="Include" />
@@ -23,6 +26,7 @@
             <e p="IconToggle.cs" t="Include" />
             <e p="ParticlePlayer.cs" t="Include" />
             <e p="ScreenFader.cs" t="Include" />
+            <e p="SingletonMonoBehaviour.cs" t="Include" />
             <e p="VectorF.cs" t="Include" />
           </e>
         </e>
@@ -55,6 +59,7 @@
           </e>
           <e p="Sprites" t="Include">
             <e p="EmojiOne Attribution.txt" t="Include" />
+            <e p="EmojiOne.json" t="Include" />
           </e>
         </e>
       </e>
